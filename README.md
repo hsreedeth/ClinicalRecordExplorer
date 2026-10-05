@@ -1,2 +1,4 @@
 # ClinicalRecordExplorer
-A local app that traces synthetic FHIR records into a small OMOP style analytical schema.
+A local application that traces synthetic
+FHIR records into a small OMOP-inspired analytical schema, makes questionable records
+visible, and shows how transformation decisions change a cohort result.
