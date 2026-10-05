@@ -1,0 +1,3 @@
+source_system,source_code,local_concept,domain,mapping_version,provenance
+https://example.org/clinical-record-explorer/codes,diabetes,LOCAL_DIABETES,Condition,teaching-1,synthetic teaching fixture; not an OMOP concept
+https://example.org/clinical-record-explorer/codes,hba1c,LOCAL_HBA1C,Measurement,teaching-1,synthetic teaching fixture; not an OMOP concept

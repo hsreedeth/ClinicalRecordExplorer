@@ -1,0 +1,794 @@
+[
+  {
+    "resourceType": "Patient",
+    "id": "A",
+    "meta": {
+      "versionId": "original"
+    },
+    "birthDate": "1980-06-12"
+  },
+  {
+    "resourceType": "Encounter",
+    "id": "visit-A",
+    "meta": {
+      "versionId": "original"
+    },
+    "status": "finished",
+    "class": {
+      "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+      "code": "AMB"
+    },
+    "subject": {
+      "reference": "Patient/A"
+    },
+    "period": {
+      "start": "2025-01-01",
+      "end": "2025-01-01"
+    }
+  },
+  {
+    "resourceType": "Condition",
+    "id": "diabetes-A",
+    "meta": {
+      "versionId": "original"
+    },
+    "subject": {
+      "reference": "Patient/A"
+    },
+    "encounter": {
+      "reference": "Encounter/visit-A"
+    },
+    "code": {
+      "coding": [
+        {
+          "system": "https://example.org/clinical-record-explorer/codes",
+          "code": "diabetes",
+          "display": "Diabetes mellitus (teaching code)"
+        }
+      ]
+    },
+    "verificationStatus": {
+      "coding": [
+        {
+          "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+          "code": "confirmed"
+        }
+      ]
+    },
+    "recordedDate": "2025-01-01",
+    "onsetDateTime": "2024-11-15",
+    "clinicalStatus": {
+      "coding": [
+        {
+          "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+          "code": "active"
+        }
+      ]
+    }
+  },
+  {
+    "resourceType": "Patient",
+    "id": "B",
+    "meta": {
+      "versionId": "original"
+    },
+    "birthDate": "1980-06-12"
+  },
+  {
+    "resourceType": "Encounter",
+    "id": "visit-B",
+    "meta": {
+      "versionId": "original"
+    },
+    "status": "finished",
+    "class": {
+      "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+      "code": "AMB"
+    },
+    "subject": {
+      "reference": "Patient/B"
+    },
+    "period": {
+      "start": "2025-01-01",
+      "end": "2025-01-01"
+    }
+  },
+  {
+    "resourceType": "Condition",
+    "id": "diabetes-B",
+    "meta": {
+      "versionId": "original"
+    },
+    "subject": {
+      "reference": "Patient/B"
+    },
+    "encounter": {
+      "reference": "Encounter/visit-B"
+    },
+    "code": {
+      "coding": [
+        {
+          "system": "https://example.org/clinical-record-explorer/codes",
+          "code": "diabetes",
+          "display": "Diabetes mellitus (teaching code)"
+        }
+      ]
+    },
+    "verificationStatus": {
+      "coding": [
+        {
+          "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+          "code": "confirmed"
+        }
+      ]
+    },
+    "recordedDate": "2025-01-01",
+    "onsetDateTime": "2024-11-15",
+    "clinicalStatus": {
+      "coding": [
+        {
+          "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+          "code": "active"
+        }
+      ]
+    }
+  },
+  {
+    "resourceType": "Patient",
+    "id": "C",
+    "meta": {
+      "versionId": "original"
+    },
+    "birthDate": "1980-06-12"
+  },
+  {
+    "resourceType": "Encounter",
+    "id": "visit-C",
+    "meta": {
+      "versionId": "original"
+    },
+    "status": "finished",
+    "class": {
+      "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+      "code": "AMB"
+    },
+    "subject": {
+      "reference": "Patient/C"
+    },
+    "period": {
+      "start": "2025-01-01",
+      "end": "2025-01-01"
+    }
+  },
+  {
+    "resourceType": "Condition",
+    "id": "diabetes-C",
+    "meta": {
+      "versionId": "original"
+    },
+    "subject": {
+      "reference": "Patient/C"
+    },
+    "encounter": {
+      "reference": "Encounter/visit-C"
+    },
+    "code": {
+      "coding": [
+        {
+          "system": "https://example.org/clinical-record-explorer/codes",
+          "code": "diabetes",
+          "display": "Diabetes mellitus (teaching code)"
+        }
+      ]
+    },
+    "verificationStatus": {
+      "coding": [
+        {
+          "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+          "code": "refuted"
+        }
+      ]
+    },
+    "recordedDate": "2025-01-01",
+    "onsetDateTime": "2024-11-15"
+  },
+  {
+    "resourceType": "Patient",
+    "id": "D",
+    "meta": {
+      "versionId": "original"
+    },
+    "birthDate": "1980-06-12"
+  },
+  {
+    "resourceType": "Encounter",
+    "id": "visit-D",
+    "meta": {
+      "versionId": "original"
+    },
+    "status": "finished",
+    "class": {
+      "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+      "code": "AMB"
+    },
+    "subject": {
+      "reference": "Patient/D"
+    },
+    "period": {
+      "start": "2025-01-01",
+      "end": "2025-01-01"
+    }
+  },
+  {
+    "resourceType": "Condition",
+    "id": "diabetes-D",
+    "meta": {
+      "versionId": "original"
+    },
+    "subject": {
+      "reference": "Patient/D"
+    },
+    "encounter": {
+      "reference": "Encounter/visit-D"
+    },
+    "code": {
+      "coding": [
+        {
+          "system": "https://example.org/clinical-record-explorer/codes",
+          "code": "diabetes",
+          "display": "Diabetes mellitus (teaching code)"
+        }
+      ]
+    },
+    "verificationStatus": {
+      "coding": [
+        {
+          "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+          "code": "confirmed"
+        }
+      ]
+    },
+    "recordedDate": "2025-01-01",
+    "onsetDateTime": "2024-11-15",
+    "clinicalStatus": {
+      "coding": [
+        {
+          "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+          "code": "active"
+        }
+      ]
+    }
+  },
+  {
+    "resourceType": "Patient",
+    "id": "E",
+    "meta": {
+      "versionId": "original"
+    },
+    "birthDate": "1980-06-12"
+  },
+  {
+    "resourceType": "Encounter",
+    "id": "visit-E",
+    "meta": {
+      "versionId": "original"
+    },
+    "status": "finished",
+    "class": {
+      "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+      "code": "AMB"
+    },
+    "subject": {
+      "reference": "Patient/E"
+    },
+    "period": {
+      "start": "2025-01-01",
+      "end": "2025-01-01"
+    }
+  },
+  {
+    "resourceType": "Condition",
+    "id": "diabetes-E",
+    "meta": {
+      "versionId": "original"
+    },
+    "subject": {
+      "reference": "Patient/E"
+    },
+    "encounter": {
+      "reference": "Encounter/visit-E"
+    },
+    "code": {
+      "coding": [
+        {
+          "system": "https://example.org/clinical-record-explorer/codes",
+          "code": "diabetes",
+          "display": "Diabetes mellitus (teaching code)"
+        }
+      ]
+    },
+    "verificationStatus": {
+      "coding": [
+        {
+          "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+          "code": "confirmed"
+        }
+      ]
+    },
+    "recordedDate": "2025-01-01",
+    "onsetDateTime": "2024-11-15",
+    "clinicalStatus": {
+      "coding": [
+        {
+          "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+          "code": "active"
+        }
+      ]
+    }
+  },
+  {
+    "resourceType": "Patient",
+    "id": "F",
+    "meta": {
+      "versionId": "original"
+    },
+    "birthDate": "1980-06-12"
+  },
+  {
+    "resourceType": "Encounter",
+    "id": "visit-F",
+    "meta": {
+      "versionId": "original"
+    },
+    "status": "finished",
+    "class": {
+      "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+      "code": "AMB"
+    },
+    "subject": {
+      "reference": "Patient/F"
+    },
+    "period": {
+      "start": "2025-01-01",
+      "end": "2025-01-01"
+    }
+  },
+  {
+    "resourceType": "Condition",
+    "id": "diabetes-F",
+    "meta": {
+      "versionId": "original"
+    },
+    "subject": {
+      "reference": "Patient/F"
+    },
+    "encounter": {
+      "reference": "Encounter/visit-F"
+    },
+    "code": {
+      "coding": [
+        {
+          "system": "https://example.org/clinical-record-explorer/codes",
+          "code": "diabetes",
+          "display": "Diabetes mellitus (teaching code)"
+        }
+      ]
+    },
+    "verificationStatus": {
+      "coding": [
+        {
+          "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+          "code": "confirmed"
+        }
+      ]
+    },
+    "recordedDate": "2025-01-01",
+    "onsetDateTime": "2024-11-15",
+    "clinicalStatus": {
+      "coding": [
+        {
+          "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+          "code": "active"
+        }
+      ]
+    }
+  },
+  {
+    "resourceType": "Patient",
+    "id": "G",
+    "meta": {
+      "versionId": "original"
+    },
+    "birthDate": "1980-06-12"
+  },
+  {
+    "resourceType": "Encounter",
+    "id": "visit-G",
+    "meta": {
+      "versionId": "original"
+    },
+    "status": "finished",
+    "class": {
+      "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+      "code": "AMB"
+    },
+    "subject": {
+      "reference": "Patient/G"
+    },
+    "period": {
+      "start": "2025-01-01",
+      "end": "2025-01-01"
+    }
+  },
+  {
+    "resourceType": "Condition",
+    "id": "diabetes-G",
+    "meta": {
+      "versionId": "original"
+    },
+    "subject": {
+      "reference": "Patient/G"
+    },
+    "encounter": {
+      "reference": "Encounter/visit-G"
+    },
+    "code": {
+      "coding": [
+        {
+          "system": "https://example.org/clinical-record-explorer/codes",
+          "code": "diabetes",
+          "display": "Diabetes mellitus (teaching code)"
+        }
+      ]
+    },
+    "verificationStatus": {
+      "coding": [
+        {
+          "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+          "code": "confirmed"
+        }
+      ]
+    },
+    "recordedDate": "2025-01-01",
+    "onsetDateTime": "2024-11-15",
+    "clinicalStatus": {
+      "coding": [
+        {
+          "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+          "code": "active"
+        }
+      ]
+    }
+  },
+  {
+    "resourceType": "Patient",
+    "id": "H",
+    "meta": {
+      "versionId": "original"
+    },
+    "birthDate": "1980-06-12"
+  },
+  {
+    "resourceType": "Encounter",
+    "id": "visit-H",
+    "meta": {
+      "versionId": "original"
+    },
+    "status": "finished",
+    "class": {
+      "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+      "code": "AMB"
+    },
+    "subject": {
+      "reference": "Patient/H"
+    },
+    "period": {
+      "start": "2025-01-01",
+      "end": "2025-01-01"
+    }
+  },
+  {
+    "resourceType": "Condition",
+    "id": "diabetes-H",
+    "meta": {
+      "versionId": "original"
+    },
+    "subject": {
+      "reference": "Patient/H"
+    },
+    "encounter": {
+      "reference": "Encounter/visit-H"
+    },
+    "code": {
+      "coding": [
+        {
+          "system": "https://example.org/clinical-record-explorer/codes",
+          "code": "diabetes",
+          "display": "Diabetes mellitus (teaching code)"
+        }
+      ]
+    },
+    "verificationStatus": {
+      "coding": [
+        {
+          "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+          "code": "confirmed"
+        }
+      ]
+    },
+    "recordedDate": "2025-01-01",
+    "onsetDateTime": "2024-11-15",
+    "clinicalStatus": {
+      "coding": [
+        {
+          "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+          "code": "active"
+        }
+      ]
+    }
+  },
+  {
+    "resourceType": "Observation",
+    "id": "hba1c-A",
+    "meta": {
+      "versionId": "original"
+    },
+    "subject": {
+      "reference": "Patient/A"
+    },
+    "status": "final",
+    "code": {
+      "coding": [
+        {
+          "system": "https://example.org/clinical-record-explorer/codes",
+          "code": "hba1c",
+          "display": "HbA1c (teaching code)"
+        }
+      ]
+    },
+    "effectiveDateTime": "2025-03-01",
+    "valueQuantity": {
+      "value": 8.4,
+      "unit": "%",
+      "system": "http://unitsofmeasure.org",
+      "code": "%"
+    }
+  },
+  {
+    "resourceType": "Observation",
+    "id": "hba1c-A",
+    "meta": {
+      "versionId": "original"
+    },
+    "subject": {
+      "reference": "Patient/A"
+    },
+    "status": "final",
+    "code": {
+      "coding": [
+        {
+          "system": "https://example.org/clinical-record-explorer/codes",
+          "code": "hba1c",
+          "display": "HbA1c (teaching code)"
+        }
+      ]
+    },
+    "effectiveDateTime": "2025-03-01",
+    "valueQuantity": {
+      "value": 8.4,
+      "unit": "%",
+      "system": "http://unitsofmeasure.org",
+      "code": "%"
+    }
+  },
+  {
+    "resourceType": "Observation",
+    "id": "hba1c-B",
+    "meta": {
+      "versionId": "original"
+    },
+    "subject": {
+      "reference": "Patient/B"
+    },
+    "status": "final",
+    "code": {
+      "coding": [
+        {
+          "system": "https://example.org/clinical-record-explorer/codes",
+          "code": "hba1c",
+          "display": "HbA1c (teaching code)"
+        }
+      ]
+    },
+    "effectiveDateTime": "2025-03-02",
+    "valueQuantity": {
+      "value": 9.1,
+      "unit": "%",
+      "system": "http://unitsofmeasure.org",
+      "code": "%"
+    }
+  },
+  {
+    "resourceType": "Observation",
+    "id": "hba1c-B",
+    "meta": {
+      "versionId": "corrected-release"
+    },
+    "subject": {
+      "reference": "Patient/B"
+    },
+    "status": "corrected",
+    "code": {
+      "coding": [
+        {
+          "system": "https://example.org/clinical-record-explorer/codes",
+          "code": "hba1c",
+          "display": "HbA1c (teaching code)"
+        }
+      ]
+    },
+    "effectiveDateTime": "2025-03-02",
+    "valueQuantity": {
+      "value": 6.8,
+      "unit": "%",
+      "system": "http://unitsofmeasure.org",
+      "code": "%"
+    }
+  },
+  {
+    "resourceType": "Observation",
+    "id": "hba1c-C",
+    "meta": {
+      "versionId": "original"
+    },
+    "subject": {
+      "reference": "Patient/C"
+    },
+    "status": "final",
+    "code": {
+      "coding": [
+        {
+          "system": "https://example.org/clinical-record-explorer/codes",
+          "code": "hba1c",
+          "display": "HbA1c (teaching code)"
+        }
+      ]
+    },
+    "effectiveDateTime": "2025-03-01",
+    "valueQuantity": {
+      "value": 8.7,
+      "unit": "%",
+      "system": "http://unitsofmeasure.org",
+      "code": "%"
+    }
+  },
+  {
+    "resourceType": "Observation",
+    "id": "hba1c-D",
+    "meta": {
+      "versionId": "original"
+    },
+    "subject": {
+      "reference": "Patient/D"
+    },
+    "status": "final",
+    "code": {
+      "coding": [
+        {
+          "system": "https://example.org/clinical-record-explorer/codes",
+          "code": "hba1c",
+          "display": "HbA1c (teaching code)"
+        }
+      ]
+    },
+    "effectiveDateTime": "2025-03-03",
+    "valueQuantity": {
+      "value": 9.2,
+      "unit": "%",
+      "system": "http://unitsofmeasure.org",
+      "code": "%"
+    }
+  },
+  {
+    "resourceType": "Observation",
+    "id": "hba1c-D",
+    "meta": {
+      "versionId": "withdrawn-release"
+    },
+    "subject": {
+      "reference": "Patient/D"
+    },
+    "status": "entered-in-error",
+    "code": {
+      "coding": [
+        {
+          "system": "https://example.org/clinical-record-explorer/codes",
+          "code": "hba1c",
+          "display": "HbA1c (teaching code)"
+        }
+      ]
+    },
+    "effectiveDateTime": "2025-03-03"
+  },
+  {
+    "resourceType": "Observation",
+    "id": "hba1c-E",
+    "meta": {
+      "versionId": "original"
+    },
+    "subject": {
+      "reference": "Patient/E"
+    },
+    "status": "final",
+    "code": {
+      "coding": [
+        {
+          "system": "https://example.org/clinical-record-explorer/codes",
+          "code": "hba1c",
+          "display": "HbA1c (teaching code)"
+        }
+      ]
+    },
+    "effectiveDateTime": "2025-03-01",
+    "valueQuantity": {
+      "value": 64,
+      "unit": "mmol/mol",
+      "system": "http://unitsofmeasure.org",
+      "code": "mmol/mol"
+    }
+  },
+  {
+    "resourceType": "Observation",
+    "id": "hba1c-F",
+    "meta": {
+      "versionId": "original"
+    },
+    "subject": {
+      "reference": "Patient/F"
+    },
+    "status": "final",
+    "code": {
+      "coding": [
+        {
+          "system": "https://example.org/clinical-record-explorer/codes",
+          "code": "hba1c",
+          "display": "HbA1c (teaching code)"
+        }
+      ]
+    },
+    "effectiveDateTime": "2025-07-01",
+    "valueQuantity": {
+      "value": 8.9,
+      "unit": "%",
+      "system": "http://unitsofmeasure.org",
+      "code": "%"
+    }
+  },
+  {
+    "resourceType": "Observation",
+    "id": "hba1c-H",
+    "meta": {
+      "versionId": "original"
+    },
+    "subject": {
+      "reference": "Patient/H"
+    },
+    "status": "final",
+    "code": {
+      "coding": [
+        {
+          "system": "https://example.org/clinical-record-explorer/codes",
+          "code": "hba1c",
+          "display": "HbA1c (teaching code)"
+        }
+      ]
+    },
+    "effectiveDateTime": "2025-06-30",
+    "valueQuantity": {
+      "value": 8.2,
+      "unit": "%",
+      "system": "http://unitsofmeasure.org",
+      "code": "%"
+    }
+  }
+]

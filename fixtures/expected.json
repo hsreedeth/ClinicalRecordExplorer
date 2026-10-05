@@ -1,0 +1,10 @@
+{
+  "A": {"outcome": "meets_threshold", "value": 8.4},
+  "B": {"outcome": "below_threshold", "value": 6.8},
+  "C": {"outcome": "outside_cohort", "value": null},
+  "D": {"outcome": "no_eligible_result", "value": null},
+  "E": {"outcome": "no_eligible_result", "value": null},
+  "F": {"outcome": "no_eligible_result", "value": null},
+  "G": {"outcome": "no_eligible_result", "value": null},
+  "H": {"outcome": "meets_threshold", "value": 8.2}
+}

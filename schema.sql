@@ -1,0 +1,10 @@
+PRAGMA foreign_keys=ON;
+CREATE TABLE person(person_id TEXT PRIMARY KEY, birth_date TEXT NOT NULL);
+CREATE TABLE observation_period(person_id TEXT PRIMARY KEY REFERENCES person, start_date TEXT, end_date TEXT);
+CREATE TABLE visit_occurrence(visit_id TEXT PRIMARY KEY, person_id TEXT NOT NULL REFERENCES person, start_date TEXT, end_date TEXT);
+CREATE TABLE source_revision(source_key TEXT, version TEXT, resource_type TEXT, patient_id TEXT, is_current INTEGER, payload TEXT NOT NULL, PRIMARY KEY(source_key,version));
+CREATE TABLE transformation_audit(source_key TEXT, version TEXT, disposition TEXT, reason TEXT, PRIMARY KEY(source_key,version));
+CREATE TABLE condition_occurrence(condition_id TEXT PRIMARY KEY, person_id TEXT NOT NULL REFERENCES person, visit_id TEXT REFERENCES visit_occurrence, source_system TEXT, source_code TEXT, local_concept TEXT, recorded_date TEXT, onset_date TEXT);
+CREATE TABLE condition_detail(condition_id TEXT PRIMARY KEY REFERENCES condition_occurrence, verification_status TEXT, clinical_status TEXT);
+CREATE TABLE measurement(measurement_id TEXT PRIMARY KEY, person_id TEXT NOT NULL REFERENCES person, visit_id TEXT REFERENCES visit_occurrence, source_system TEXT, source_code TEXT, local_concept TEXT, effective_date TEXT, value REAL, unit_system TEXT, unit_code TEXT);
+CREATE TABLE measurement_detail(measurement_id TEXT PRIMARY KEY REFERENCES measurement, status TEXT, supported_unit INTEGER);
