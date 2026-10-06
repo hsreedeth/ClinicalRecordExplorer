@@ -10,7 +10,19 @@ const chrome=process.env.CRE_BROWSER_PATH||'/Applications/Google Chrome.app/Cont
  try{
   const page=await browser.newPage({viewport:{width:1920,height:1080}});
   const errors=[];page.on('pageerror',error=>errors.push(error.message));
-  await page.goto(BASE);await page.waitForSelector('#patients tr');
+  await page.addInitScript(()=>{
+   window.initialHistory=Array.from({length:4},()=>[]);
+   new MutationObserver(()=>document.querySelectorAll('#metrics .number').forEach((number,index)=>{
+    const value=Number(number.textContent),history=initialHistory[index];
+    if(value!==history.at(-1))history.push(value);
+   })).observe(document,{subtree:true,childList:true,characterData:true});
+  });
+  async function checkInitialCounts(){
+   await page.waitForFunction(()=>[...document.querySelectorAll('#metrics .number')].map(el=>el.textContent).join(',')==='7,2,3,4');
+   assert.deepEqual(await page.evaluate(()=>initialHistory),[Array.from({length:8},(_,i)=>i),[0,1,2],[0,1,2,3],[0,1,2,3,4]]);
+  }
+  await page.goto(BASE);await checkInitialCounts();
+  await page.reload();await checkInitialCounts();
   await page.evaluate(()=>{
    window.countHistory=[2];
    new MutationObserver(()=>{const value=Number(document.querySelector('#metrics .highlight .number').textContent);if(value!==countHistory.at(-1))countHistory.push(value)}).observe(document.getElementById('metrics'),{subtree:true,childList:true,characterData:true});
@@ -54,7 +66,10 @@ const chrome=process.env.CRE_BROWSER_PATH||'/Applications/Google Chrome.app/Cont
   assert.equal(await page.locator('#metrics .highlight .number').textContent(),'2');
   assert.equal(await page.locator('#comparison .fill').last().evaluate(el=>el.getAnimations().length),0);
   assert.equal(await page.locator('#patients .cell-update').evaluateAll(cells=>cells.reduce((n,cell)=>n+cell.getAnimations().length,0)),0);
+  await page.reload();await page.waitForSelector('#patients tr');
+  assert.deepEqual(await page.locator('#metrics .number').allTextContents(),['7','2','3','4']);
+  assert.equal(await page.locator('#metrics .count-digit').count(),0);
   assert.deepEqual(errors,[]);
-  console.log('Passed: sequential counts in both directions, animated bars/cells/lineage, unchanged values, pass/fail colours, reduced motion.');
+  console.log('Passed: zero-to-default counts on load and refresh, sequential recalculation, animated bars/cells/lineage, unchanged values, pass/fail colours, reduced motion.');
  }finally{await browser.close()}
 })().catch(error=>{console.error(error);process.exit(1)});

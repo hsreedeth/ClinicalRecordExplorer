@@ -61,7 +61,7 @@ function render(){const c=report.counts;
  const previousLayout=JSON.stringify([...positions]);
  $('metrics').innerHTML=[['Qualifying patients',c.qualifying,`${c.imported} imported · ${c.outside_cohort} outside cohort`],['Meet threshold',c.meets_threshold,'A selected eligible result at<br>or above cutoff'],['Eligible measurements',c.measured,`${c.below_threshold} below threshold`],['No eligible result',c.no_eligible_result,'Retained in cohort ·<br>level remains unknown']].map((m,i)=>`<div class="metric ${i===1?'highlight':''}"><div class="label">${m[0]}</div><div class="number">${m[1]}</div><div class="hint">${m[2]}</div></div>`).join('');
  $('comparison').innerHTML=[['Naive Query',c.naive,'naive'],['Checked Query',c.meets_threshold,'']].map(([name,n,css])=>`<div class="bar-row"><span>${name}</span><div class="track" role="meter" aria-label="${name}" aria-valuemin="0" aria-valuemax="${c.imported}" aria-valuenow="${n}"><div class="fill ${css}" style="width:${c.imported?n/c.imported*100:0}%"></div></div><strong>${n}</strong></div>`).join('');
- $('metrics').querySelectorAll('.number').forEach((element,index)=>animateNumber(element,previousNumbers[index],Number(element.textContent)));
+ $('metrics').querySelectorAll('.number').forEach((element,index)=>animateNumber(element,previousNumbers[index]??0,Number(element.textContent)));
  $('comparison').querySelectorAll('.fill').forEach((element,index)=>{
   const from=previousBars[index],to=parseFloat(element.style.width);
   if(Number.isFinite(from)&&from!==to&&canAnimate(element))element.animate([{width:from+'%'},{width:to+'%'}],{duration:700,easing:'cubic-bezier(.2,.7,.2,1)'});
