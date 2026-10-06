@@ -29,16 +29,59 @@ function highlightCode(value,language){
  }
  return html+esc(value.slice(cursor));
 }
+function canAnimate(element){return !matchMedia('(prefers-reduced-motion: reduce)').matches&&element.getClientRects().length>0}
+function animateNumber(element,from,to){
+ if(!Number.isFinite(from)||from===to||!canAnimate(element))return;
+ const digit=document.createElement('span');digit.className='count-digit';digit.textContent=from;element.replaceChildren(digit);
+ const steps=Math.abs(to-from),direction=Math.sign(to-from);
+ // Visit every integer, shortening each flip as the count approaches its result.
+ (async()=>{
+  for(let step=1;step<=steps;step++){
+   const duration=steps===1?260:240-120*(step-1)/(steps-1);
+   if(!element.isConnected)return;
+   await digit.animate([{transform:'perspective(240px) rotateX(0deg)',opacity:1},{transform:'perspective(240px) rotateX(70deg)',opacity:0}],{duration:duration/2,easing:'ease-in',fill:'forwards'}).finished;
+   if(!element.isConnected)return;
+   digit.textContent=from+direction*step;
+   const incoming=digit.animate([{transform:'perspective(240px) rotateX(-70deg)',opacity:0},{transform:'perspective(240px) rotateX(0deg)',opacity:1}],{duration:duration/2,easing:'ease-out'});
+   // Clear the outgoing fill before the incoming animation finishes.
+   digit.getAnimations().filter(animation=>animation!==incoming).forEach(animation=>animation.cancel());
+   await incoming.finished;
+  }
+ })();
+}
+function animateChange(element){
+ if(!canAnimate(element))return;
+ element.animate([{opacity:.25,transform:'translateY(5px)'},{opacity:1,transform:'translateY(0)'}],{duration:500,easing:'cubic-bezier(.2,.7,.2,1)'});
+}
 function render(){const c=report.counts;
+ const previousNumbers=[...$('metrics').querySelectorAll('.number')].map(el=>Number(el.textContent));
+ const previousBars=[...$('comparison').querySelectorAll('.fill')].map(el=>el.getBoundingClientRect().width/el.parentElement.getBoundingClientRect().width*100);
+ const previousRows=new Map([...$('patients').children].map(row=>[row.dataset.patient,[...row.cells].map(cell=>cell.querySelector(':scope > .cell-update')?.innerHTML??cell.innerHTML)]));
+ const updating=previousRows.size>0;
+ const previousLayout=JSON.stringify([...positions]);
  $('metrics').innerHTML=[['Qualifying patients',c.qualifying,`${c.imported} imported · ${c.outside_cohort} outside cohort`],['Meet threshold',c.meets_threshold,'A selected eligible result at<br>or above cutoff'],['Eligible measurements',c.measured,`${c.below_threshold} below threshold`],['No eligible result',c.no_eligible_result,'Retained in cohort ·<br>level remains unknown']].map((m,i)=>`<div class="metric ${i===1?'highlight':''}"><div class="label">${m[0]}</div><div class="number">${m[1]}</div><div class="hint">${m[2]}</div></div>`).join('');
  $('comparison').innerHTML=[['Naive Query',c.naive,'naive'],['Checked Query',c.meets_threshold,'']].map(([name,n,css])=>`<div class="bar-row"><span>${name}</span><div class="track" role="meter" aria-label="${name}" aria-valuemin="0" aria-valuemax="${c.imported}" aria-valuenow="${n}"><div class="fill ${css}" style="width:${c.imported?n/c.imported*100:0}%"></div></div><strong>${n}</strong></div>`).join('');
+ $('metrics').querySelectorAll('.number').forEach((element,index)=>animateNumber(element,previousNumbers[index],Number(element.textContent)));
+ $('comparison').querySelectorAll('.fill').forEach((element,index)=>{
+  const from=previousBars[index],to=parseFloat(element.style.width);
+  if(Number.isFinite(from)&&from!==to&&canAnimate(element))element.animate([{width:from+'%'},{width:to+'%'}],{duration:700,easing:'cubic-bezier(.2,.7,.2,1)'});
+ });
  $('denominator').innerHTML=`${c.meets_threshold} of ${c.qualifying} qualifying patients meet the threshold. ${c.no_eligible_result} lack an eligible result.<br>Among measured patients: ${c.meets_threshold} of ${c.measured}.`;
  $('patients').innerHTML=report.patients.map(r=>`<tr tabindex="0" aria-label="Trace patient ${esc(r.person_id)}" data-patient="${esc(r.person_id)}"><td>${esc(r.person_id)}</td><td>${esc(r.index_date)}</td><td>${r.value===null?'—':esc(r.value)+'%'}${r.effective_date?'<br><span class="small">'+esc(r.effective_date)+'</span>':''}</td><td class="${r.outcome}">${labels[r.outcome]}</td><td>${esc(r.reason)}${r.warnings.map(w=>'<p>'+esc(w)+'</p>').join('')}</td></tr>`).join('');
- document.querySelectorAll('#patients [data-patient]').forEach(r=>{r.onclick=()=>switchView(true,r.dataset.patient);r.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();r.click()}}});
+ document.querySelectorAll('#patients [data-patient]').forEach(r=>{
+  const previous=previousRows.get(r.dataset.patient);
+  [...r.cells].forEach((cell,index)=>{
+   if(previous&&previous[index]!==cell.innerHTML){
+    const content=document.createElement('div');content.className='cell-update';content.innerHTML=cell.innerHTML;cell.replaceChildren(content);animateChange(content);
+    if(canAnimate(cell))cell.animate([{backgroundColor:'#f5e4b8'},{backgroundColor:'transparent'}],{duration:700,easing:'ease-out'});
+   }
+  });
+  r.onclick=()=>switchView(true,r.dataset.patient);r.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();r.click()}};
+ });
  if(focus!=='all'&&!report.patients.some(p=>p.person_id===focus))focus='all';
  $('patient-select').innerHTML='<option value="all">All patients</option>'+report.patients.map(r=>`<option value="${esc(r.person_id)}">Patient ${esc(r.person_id)}</option>`).join('');
  const table=$('table-select').value;$('table-select').innerHTML=Object.keys(report.tables).map(t=>`<option>${t}</option>`).join('');if(table)$('table-select').value=table;
- lineageError=validateLineage(report);renderDisclosure();if(!lineageError)layout();drawGraph();if(trace)requestAnimationFrame(()=>fit());if(inspection&&!lineageError)inspect(inspection);scheduleToolbarMeasurement();
+ lineageError=validateLineage(report);renderDisclosure();if(!lineageError)layout();drawGraph(updating);if(trace&&(!updating||previousLayout!==JSON.stringify([...positions])))requestAnimationFrame(()=>fit());if(inspection&&!lineageError)inspect(inspection);scheduleToolbarMeasurement();
 }
 function renderDisclosure(){const type=$('inspect-select').value;$('table-label').hidden=type!=='Relational output';
  if(!report)return;
@@ -91,7 +134,8 @@ function mappedEdges(){
  for(const e of report.lineage.edges){const source=membership.get(e.source),target=membership.get(e.target);if(source===target)continue;const key=source+'→'+target;if(seen.has(key))continue;seen.add(key);result.push({...e,source,target})}
  return result;
 }
-function drawGraph(){if(!report)return;
+function drawGraph(animateUpdates=false){if(!report)return;
+ const previousCards=animateUpdates?new Map([...$('scene').querySelectorAll('[data-node]')].map(node=>[node.dataset.node,node.querySelector('.card-inspect').textContent])):new Map();
  $('patient-select').value=focus;$('focus-label').textContent=focus==='all'?`All ${report.patients.length} patient lanes`:'Focused: Patient '+focus;
  $('graph-error').hidden=!lineageError;$('graph').hidden=!!lineageError;if(lineageError){$('graph-error-message').textContent=lineageError;$('scene').innerHTML='';$('inspector').hidden=true;return}
  let html='';
@@ -108,6 +152,16 @@ function drawGraph(){if(!report)return;
   html+='</g>';
  }
  $('scene').innerHTML=html;
+ $('scene').querySelectorAll('[data-node]').forEach(node=>{
+  const item=visibleGraph.find(item=>item.id===node.dataset.node),status=item.decision;
+  const label=node.querySelector(item.kind==='stage'?'.decision':'.summary');
+  if(status==='pass'||status==='fail')label.classList.add('status-'+status);
+  const content=node.querySelector('.card-inspect');
+  if(previousCards.has(item.id)&&previousCards.get(item.id)!==content.textContent&&canAnimate(node)){
+   animateChange(content);
+   node.querySelector('.card').animate([{fill:'#f5e4b8'},{fill:node.classList.contains('muted')?'#fafafa':'white'}],{duration:700,easing:'ease-out'});
+  }
+ });
  document.querySelectorAll('[data-inspect]').forEach(el=>{el.onclick=()=>{inspect(el.dataset.inspect);drawGraph()};keyboardClick(el)});
  document.querySelectorAll('[data-expand]').forEach(el=>{el.onclick=e=>{e.stopPropagation();const id=el.dataset.expand;const opening=!expanded.has(id);opening?expanded.add(id):expanded.delete(id);layout();drawGraph();fit(opening?id.split(':')[0]:null)};keyboardClick(el)});
  transform();

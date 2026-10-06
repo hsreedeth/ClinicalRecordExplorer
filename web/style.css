@@ -23,3 +23,10 @@ footer a{color:inherit;text-underline-offset:3px}
 .token.syntax-keyword{color:#6845b8;font-weight:600}.token.syntax-string{color:#246c36}.token.syntax-key{color:#175c93}.token.syntax-number{color:#a24d0a}.token.syntax-parameter{color:#9b3971}.token.syntax-function{color:#175c93}.token.syntax-comment{color:#646b74;font-style:italic}.token.syntax-punctuation{color:#60646c}
 @media(max-width:480px){.trace-view header h1{max-width:calc(100% - 44px);font-size:18px}}
 @media(prefers-reduced-motion:reduce){header h1,.header-back{transition:none}}
+
+/* Recalculation feedback stays within each existing value's layout box. */
+.count-digit{display:inline-block;transform-origin:50% 50%;backface-visibility:hidden;font-variant-numeric:tabular-nums}
+.number{font-variant-numeric:tabular-nums}
+.cell-update{display:block}
+.node .status-pass{fill:#23831f}
+.node .status-fail{fill:#bd3030}
