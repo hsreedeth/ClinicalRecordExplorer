@@ -3,7 +3,32 @@ const esc=x=>String(x??'—').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>'
 const labels={meets_threshold:'Meets threshold',below_threshold:'Below threshold',no_eligible_result:'No eligible result',outside_cohort:'Outside diagnosis cohort'};
 let report,focus='all',inspection=null,trace=false,lineageError=null,positions=new Map(),viewport={x:0,y:0,scale:1},drag=null;
 const expanded=new Set();let visibleGraph=[];const STAGES=['source','diagnosis','measurement','selected','outcome'];
-function switchView(value,patient='all'){trace=value;document.body.classList.toggle('trace-view',value);if(value)focus=patient;$('overview').hidden=value;$('intro').hidden=value;$('trace').hidden=!value;if(value){drawGraph();requestAnimationFrame(()=>fit())}window.scrollTo(0,0);measureStudyToolbar()}
+let overviewTrigger=null;
+function switchView(value,patient='all'){
+ if(value)overviewTrigger=document.activeElement;
+ trace=value;document.body.classList.toggle('trace-view',value);
+ $('back').disabled=!value;$('back').setAttribute('aria-hidden',String(!value));
+ if(value)focus=patient;$('overview').hidden=value;$('intro').hidden=value;$('trace').hidden=!value;
+ if(value){drawGraph();requestAnimationFrame(()=>{fit();$('back').focus({preventScroll:true})})}
+ else if(overviewTrigger?.isConnected)overviewTrigger.focus({preventScroll:true});
+ window.scrollTo(0,0);measureStudyToolbar();
+}
+// Tokenize raw text before escaping it, so source strings stay literal and safe.
+function highlightCode(value,language){
+ const pattern=language==='sql'
+  ? /(--[^\n]*|\/\*[\s\S]*?\*\/)|('(?:''|[^'])*')|("(?:""|[^"])*")|(:[A-Za-z_]\w*)|\b(WITH|AS|SELECT|FROM|JOIN|USING|WHERE|AND|OR|GROUP|BY|OVER|PARTITION|ORDER|DESC|ASC|IN|IS|NOT|NULL|BETWEEN|CASE|WHEN|THEN|ELSE|END|LEFT|RIGHT|INNER|OUTER|ON|DISTINCT|LIMIT|HAVING|UNION|ALL)\b|\b(MIN|MAX|COUNT|SUM|AVG|ROW_NUMBER|DATE)\b|\b(\d+(?:\.\d+)?)\b|([(),.;*+<>=|\/-])/gi
+  : /("(?:\\.|[^"\\])*"\s*:)|("(?:\\.|[^"\\])*")|\b(true|false|null)\b|(-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)|([{}\[\],:])/g;
+ const types=language==='sql'
+  ? ['comment','string','key','parameter','keyword','function','number','punctuation']
+  : ['key','string','keyword','number','punctuation'];
+ let html='',cursor=0;
+ for(const match of value.matchAll(pattern)){
+  html+=esc(value.slice(cursor,match.index));
+  const type=types[match.slice(1).findIndex(token=>token!==undefined)];
+  html+=`<span class="token syntax-${type}">${esc(match[0])}</span>`;cursor=match.index+match[0].length;
+ }
+ return html+esc(value.slice(cursor));
+}
 function render(){const c=report.counts;
  $('metrics').innerHTML=[['Qualifying patients',c.qualifying,`${c.imported} imported · ${c.outside_cohort} outside cohort`],['Meet threshold',c.meets_threshold,'A selected eligible result at<br>or above cutoff'],['Eligible measurements',c.measured,`${c.below_threshold} below threshold`],['No eligible result',c.no_eligible_result,'Retained in cohort ·<br>level remains unknown']].map((m,i)=>`<div class="metric ${i===1?'highlight':''}"><div class="label">${m[0]}</div><div class="number">${m[1]}</div><div class="hint">${m[2]}</div></div>`).join('');
  $('comparison').innerHTML=[['Naive Query',c.naive,'naive'],['Checked Query',c.meets_threshold,'']].map(([name,n,css])=>`<div class="bar-row"><span>${name}</span><div class="track" role="meter" aria-label="${name}" aria-valuemin="0" aria-valuemax="${c.imported}" aria-valuenow="${n}"><div class="fill ${css}" style="width:${c.imported?n/c.imported*100:0}%"></div></div><strong>${n}</strong></div>`).join('');
@@ -18,7 +43,7 @@ function render(){const c=report.counts;
 function renderDisclosure(){const type=$('inspect-select').value;$('table-label').hidden=type!=='Relational output';
  if(!report)return;
  if(type==='Rules')$('inspect-content').innerHTML=`<ol><li>Preserve original source payloads. Collapse identical copies; conflicting copies stop the run.</li><li>Select current revisions by the explicit manifest and opaque version ID. Superseded revisions remain source history.</li><li>Validate supported fields, references and mappings. Quarantine unsupported resources. Withdraw entered-in-error current records without restoring older revisions.</li><li>Require mapped diabetes, confirmed verification, active clinical status, and age ≥18 at recorded diagnosis. Use the earliest qualifying recorded date as index.</li><li>Require mapped HbA1c, final/corrected status, numeric value, UCUM %, and the inclusive day 0–${report.parameters.window_days} window.</li><li>Select latest eligible measurement. Break same-date ties by ascending stable source key; flag conflicting values.</li><li>Compare the selected value to ${report.parameters.threshold}%. Retain qualifying patients without eligible measurements as unknown.</li></ol><p>Coverage is a declared synthetic assumption. Diagnosis and measurement processing are separate branches; study window eligibility depends on the qualifying index.</p>`;
- else {const value=type==='Cohort SQL'?report.sql:type==='Run information'?JSON.stringify({...report.run,parameters:report.parameters,dispositions:report.dispositions,...(lineageError?{lineage_error:lineageError}:{duplicate_handling:report.lineage.duplicate_handling})},null,2):JSON.stringify(report.tables[$('table-select').value],null,2);$('inspect-content').innerHTML=(type==='Cohort SQL'?`<p>Parameters: threshold = ${report.parameters.threshold}%; window_days = ${report.parameters.window_days}</p>`:'')+`<pre>${esc(value)}</pre>`}
+ else {const language=type==='Cohort SQL'?'sql':'json';const value=language==='sql'?report.sql:JSON.stringify(type==='Run information'?{...report.run,parameters:report.parameters,dispositions:report.dispositions,...(lineageError?{lineage_error:lineageError}:{duplicate_handling:report.lineage.duplicate_handling})}:report.tables[$('table-select').value],null,2);$('inspect-content').innerHTML=(language==='sql'?`<p>Parameters: threshold = ${report.parameters.threshold}%; window_days = ${report.parameters.window_days}</p>`:'')+`<pre class="code-panel" tabindex="0" aria-label="${esc(type)}"><code class="language-${language}">${highlightCode(value,language)}</code></pre>`}
 }
 // Contract: report schema 2; lineage schema 1 with a complete node partition into five stages.
 function validateLineage(body){
@@ -116,6 +141,12 @@ $('patient-select').onchange=e=>{focus=e.target.value;drawGraph()};
 $('graph-retry').onclick=load;
 
 $('trace-open').onclick=()=>switchView(true);$('see').onclick=e=>{e.preventDefault();switchView(true)};$('back').onclick=()=>switchView(false);
+$('see-rules').onclick=()=>{
+ $('inspect-select').value='Rules';$('disclosure').open=true;renderDisclosure();
+ measureStudyToolbar();
+ $('disclosure').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});
+ $('disclosure').querySelector('summary').focus({preventScroll:true});
+};
 $('inspect-select').onchange=renderDisclosure;$('table-select').onchange=renderDisclosure;
 async function load(){ $('apply').disabled=true;$('error').hidden=true;try{const response=await fetch(`/api/report?threshold=${encodeURIComponent($('threshold').value)}&days=${encodeURIComponent($('days').value)}`);const body=await response.json();if(!response.ok)throw Error(body.error||'Could not load report');report=body;render()}catch(e){$('error').textContent=e.message;$('error').hidden=false}finally{$('apply').disabled=false}}
 $('study').onsubmit=e=>{e.preventDefault();load()};$('reset').onclick=()=>{$('threshold').value=8;$('days').value=180;load()};

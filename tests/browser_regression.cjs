@@ -20,9 +20,35 @@ const chrome=process.env.CRE_BROWSER_PATH||'/Applications/Google Chrome.app/Cont
  const style=await page.evaluate(()=>({title:parseFloat(getComputedStyle(document.querySelector('h1')).fontSize),body:parseFloat(getComputedStyle(document.body).fontSize),control:document.getElementById('threshold').getBoundingClientRect().height,rowHeights:[...document.querySelectorAll('#patients tr')].map(r=>r.getBoundingClientRect().height)}));
  assert.equal(style.title,22);assert.equal(style.body,14);assert.equal(style.control,44);assert(style.rowHeights.every(h=>h>=62&&h<=96));
  async function assertNoVisibleErrors(){for(const id of ['error','graph-error'])assert.equal(await page.locator('#'+id).isVisible(),false);assert.deepEqual(errors,[])}
- await assertNoVisibleErrors();await page.screenshot({path:path.join(OUTPUT,'overview.png')});
+ await assertNoVisibleErrors();
+ assert.equal(await page.locator('#back').isVisible(),false);
+ assert.equal(await page.locator('footer a').getAttribute('href'),'https://github.com/hsreedeth/ClinicalRecordExplorer');
+ const shortcutSize=await page.locator('#see').boundingBox(),resetSize=await page.locator('#reset').boundingBox();
+ assert.equal(shortcutSize.width,resetSize.width);assert.equal(shortcutSize.height,resetSize.height);
+ await page.locator('#see-rules').click();assert.equal(await page.locator('#disclosure').evaluate(el=>el.open),true);
+ assert.equal(await page.locator('#inspect-select').inputValue(),'Rules');assert.equal(await page.locator('#inspect-content li').count(),7);
+ await page.waitForTimeout(700);
+ const rulesTop=await page.locator('#disclosure summary').boundingBox(),toolbar=await page.locator('#study-controls').boundingBox();
+ assert(rulesTop.y>=toolbar.y+toolbar.height,'Rules must scroll below the fixed toolbar');
+ await page.selectOption('#inspect-select','Cohort SQL');
+ const sql=await(await page.request.get(BASE+'/api/report')).json();
+ assert.equal(await page.locator('#inspect-content code').textContent(),sql.sql);assert(await page.locator('#inspect-content .token.syntax-keyword').count()>0);
+ for(const mode of ['Run information','Relational output']){
+  await page.selectOption('#inspect-select',mode);assert(await page.locator('#inspect-content .token.syntax-key').count()>0);
+  const parsed=JSON.parse(await page.locator('#inspect-content code').textContent());
+  if(mode==='Run information'){const numberStyle=await page.locator('#inspect-content .syntax-number').first().evaluate(el=>({size:getComputedStyle(el).fontSize,margin:getComputedStyle(el).marginTop}));assert.equal(numberStyle.size,'13px');assert.equal(numberStyle.margin,'0px');}
+  if(mode==='Relational output')assert.deepEqual(parsed,sql.tables[await page.locator('#table-select').inputValue()]);else assert.deepEqual(parsed.parameters,sql.parameters);
+ }
+ // Highlighted strings must stay literal, including markup-looking source evidence.
+ const literal=await page.evaluate(()=>{const raw=JSON.stringify({value:'<script>alert(1)</script>',quoted:'a "quote"',number:-1.2e3},null,2);const panel=document.createElement('pre');panel.innerHTML=highlightCode(raw,'json');return {raw,text:panel.textContent,scripts:panel.querySelectorAll('script').length}});
+ assert.equal(literal.text,literal.raw);assert.equal(literal.scripts,0);
+ await page.locator('#disclosure').evaluate(el=>el.open=false);await page.evaluate(()=>scrollTo(0,0));await page.waitForTimeout(100);
+ await page.screenshot({path:path.join(OUTPUT,'overview.png')});
  await page.locator('.compare').scrollIntoViewIfNeeded();await page.screenshot({path:path.join(OUTPUT,'comparison.png')});
  await page.locator('#trace-open').click();await page.waitForSelector('.node.stage');await page.waitForTimeout(50);
+ await page.waitForTimeout(260);
+ const header=await page.evaluate(()=>{const title=document.querySelector('h1').getBoundingClientRect(),back=document.getElementById('back').getBoundingClientRect();return {titleX:title.x,backRight:back.right,backInHeader:document.querySelector('header').contains(document.getElementById('back'))}});
+ assert(header.backInHeader);assert(header.titleX>header.backRight);assert.equal(header.titleX,116);
  assert.equal(await page.locator('#patient-select').inputValue(),'all');assert.equal(await page.locator('.node.stage').count(),40);assert.equal(await page.locator('.node.check').count(),0);assert(await page.locator('.edge').count()>0);
  const graph=await page.evaluate(()=>{const canvas=document.getElementById('canvas').getBoundingClientRect();const nodes=[...document.querySelectorAll('.node.stage')].map(n=>{const b=n.getBoundingClientRect();return {patient:n.dataset.patient,x:b.x,y:b.y,width:b.width,height:b.height,visible:b.x>=canvas.x&&b.right<=canvas.right&&b.y>=canvas.y&&b.bottom<=canvas.bottom&&b.bottom<=innerHeight}});return {canvas:{x:canvas.x,y:canvas.y,width:canvas.width,height:canvas.height},nodes}});
  assert(graph.canvas.width>0&&graph.canvas.height>=560&&graph.canvas.height<=680);assert(graph.nodes.every(n=>n.visible),'Every stage must be visible at default desktop viewport');
@@ -51,7 +77,7 @@ const chrome=process.env.CRE_BROWSER_PATH||'/Applications/Google Chrome.app/Cont
  await page.selectOption('#inspect-select','Run information');assert((await page.locator('#inspect-content').innerText()).includes('duplicate_handling'));await assertNoVisibleErrors();
  await page.locator('#back').click();const reset=page.waitForResponse(r=>r.url().includes('days=180'));await page.locator('#reset').click();await reset;
  await page.setViewportSize({width:390,height:844});await page.evaluate(()=>scrollTo(0,0));await page.screenshot({path:path.join(OUTPUT,'narrow-overview.png'),fullPage:true});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth),390);
- await page.locator('#patients [data-patient="B"]').click();assert.equal(await page.locator('#patient-select').inputValue(),'B');await page.screenshot({path:path.join(OUTPUT,'narrow-trace.png'),fullPage:true});await assertNoVisibleErrors();
+ await page.locator('#patients [data-patient="B"]').click();assert.equal(await page.locator('#patient-select').inputValue(),'B');await page.waitForTimeout(400);await page.screenshot({path:path.join(OUTPUT,'narrow-trace.png'),fullPage:true});await assertNoVisibleErrors();
  // Missing-lineage regression: overview remains usable and graph error states the repair.
  const broken=await browser.newPage({viewport:{width:1920,height:1080}});const brokenErrors=[];broken.on('pageerror',e=>brokenErrors.push(e.message));
  await broken.route('**/api/report?*',async route=>{const response=await route.fetch();const body=await response.json();delete body.lineage;await route.fulfill({response,json:body})});
